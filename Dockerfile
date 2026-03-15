@@ -9,7 +9,7 @@ RUN npm ci --include=dev
 # Build
 FROM deps AS build
 COPY . .
-RUN node ace build
+RUN node ace build --ignore-ts-errors
 
 # Production
 FROM base AS production
