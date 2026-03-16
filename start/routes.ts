@@ -12,7 +12,7 @@ const AdminSourceAccountsController = () => import('#controllers/http/admin/sour
 const AdminIdeasReviewController = () => import('#controllers/http/admin/ideas_review_controller')
 
 // Public routes
-router.on('/').redirect('/login')
+router.on('/').redirect('/ideas')
 router.get('/login', [AuthController, 'showLogin']).as('auth.login')
 router.get('/register', [AuthController, 'showRegister']).as('auth.register')
 router.post('/login', [AuthController, 'login']).as('auth.login.store')

@@ -56,7 +56,7 @@ export default function StructuredPlanPage({ plan, idea }: Props) {
 
         {/* Layout */}
         <div className="flex gap-12">
-          {/* Sidebar nav — desktop */}
+          {/* Sidebar nav — desktop uniquement */}
           <nav className="hidden md:block w-48 flex-shrink-0 sticky top-8 self-start">
             <div className="space-y-1">
               {STEPS.map((s, i) => (
@@ -89,54 +89,66 @@ export default function StructuredPlanPage({ plan, idea }: Props) {
             </div>
           </nav>
 
-          {/* Mobile nav */}
-          <div className="md:hidden flex gap-1.5 overflow-x-auto pb-4 mb-2 -mx-4 px-4 scrollbar-none">
-            {STEPS.map((s, i) => (
-              <button
-                key={s.key}
-                onClick={() => go(i)}
-                className={`flex-shrink-0 text-[12px] px-3.5 py-2 rounded-full transition-all ${
-                  i === step ? 'bg-nb-white text-nb-black font-medium' : 'text-nb-gray-500 hover:text-nb-gray-300'
-                }`}
-              >{s.label}</button>
-            ))}
-          </div>
+          {/* Zone principale (mobile nav + contenu) */}
+          <div className="flex-1 min-w-0">
+            {/* Mobile nav — au-dessus du contenu */}
+            <div className="md:hidden mb-6">
+              <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
+                {STEPS.map((s, i) => (
+                  <button
+                    key={s.key}
+                    onClick={() => go(i)}
+                    className={`flex-shrink-0 text-[12px] px-4 py-2 rounded-full border transition-all ${
+                      i === step
+                        ? 'bg-nb-red border-nb-red text-white font-semibold'
+                        : 'border-nb-border text-nb-gray-500 bg-nb-surface hover:text-nb-gray-300 hover:border-nb-gray-500'
+                    }`}
+                  >{s.label}</button>
+                ))}
+              </div>
+              {/* Barre de progression mobile */}
+              <div className="mt-3 h-[2px] bg-nb-border rounded-full overflow-hidden">
+                <div className="h-full bg-nb-red rounded-full transition-all duration-500" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+              </div>
+              <p className="text-[11px] text-nb-gray-600 mt-1.5">{step + 1} sur {STEPS.length}</p>
+            </div>
 
-          {/* Content */}
-          <div className="flex-1 min-w-0 pb-16">
-            {step === 0 && <StepMvp mvp={content.mvp} />}
-            {step === 1 && <StepFeatures mvp={content.mvp} />}
-            {step === 2 && <StepMarketing marketing={content.marketingPlan} />}
-            {step === 3 && <StepRoadmap roadmap={content.launchRoadmap} />}
-            {step === 4 && <StepKpis marketing={content.marketingPlan} />}
+            {/* Contenu de l'etape */}
+            <div className="pb-16">
+              {step === 0 && <StepMvp mvp={content.mvp} />}
+              {step === 1 && <StepFeatures mvp={content.mvp} />}
+              {step === 2 && <StepMarketing marketing={content.marketingPlan} />}
+              {step === 3 && <StepRoadmap roadmap={content.launchRoadmap} />}
+              {step === 4 && <StepKpis marketing={content.marketingPlan} />}
 
-            {/* Footer nav */}
-            <div className="flex items-center justify-between mt-16 pt-6 border-t border-nb-border/50">
-              <button
-                onClick={() => go(step - 1)}
-                disabled={step === 0}
-                className="flex items-center gap-2 text-[13px] text-nb-gray-400 hover:text-nb-white disabled:text-nb-gray-600 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><polyline points="12 19 5 12 12 5" /></svg>
-                {step > 0 && STEPS[step - 1].label}
-              </button>
-              {step < STEPS.length - 1 ? (
+              {/* Footer nav */}
+              <div className="flex items-center justify-between mt-16 pt-6 border-t border-nb-border/50">
                 <button
-                  onClick={() => go(step + 1)}
-                  className="flex items-center gap-2 text-[13px] font-medium text-nb-white bg-nb-surface border border-nb-border hover:border-nb-gray-500 px-5 py-2.5 rounded-lg transition-colors"
+                  onClick={() => go(step - 1)}
+                  disabled={step === 0}
+                  className="flex items-center gap-2 text-[13px] text-nb-gray-400 hover:text-nb-white disabled:text-nb-gray-600 disabled:cursor-not-allowed transition-colors"
                 >
-                  {STEPS[step + 1].label}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><polyline points="12 5 19 12 12 19" /></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><polyline points="12 19 5 12 12 5" /></svg>
+                  {step > 0 && STEPS[step - 1].label}
                 </button>
-              ) : (
-                <Link
-                  href={`/ideas/${idea.slug}`}
-                  className="flex items-center gap-2 text-[13px] font-medium text-nb-white bg-nb-red hover:bg-nb-red-hover px-5 py-2.5 rounded-lg transition-colors"
-                >
-                  Retour a l'idee
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><polyline points="12 5 19 12 12 19" /></svg>
-                </Link>
-              )}
+                {step < STEPS.length - 1 ? (
+                  <button
+                    onClick={() => go(step + 1)}
+                    className="flex items-center gap-2 text-[13px] font-medium text-nb-white bg-nb-surface border border-nb-border hover:border-nb-gray-500 px-5 py-2.5 rounded-lg transition-colors"
+                  >
+                    {STEPS[step + 1].label}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><polyline points="12 5 19 12 12 19" /></svg>
+                  </button>
+                ) : (
+                  <Link
+                    href={`/ideas/${idea.slug}`}
+                    className="flex items-center gap-2 text-[13px] font-medium text-nb-white bg-nb-red hover:bg-nb-red-hover px-5 py-2.5 rounded-lg transition-colors"
+                  >
+                    Retour a l'idee
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><polyline points="12 5 19 12 12 19" /></svg>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>

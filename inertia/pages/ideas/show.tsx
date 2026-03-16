@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react'
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo } from 'react'
 import AppLayout from '~/layouts/app_layout'
 import InsightMetricCard from '~/components/ideas/insight_metric_card'
 import MarketPotentialSection from '~/components/ideas/market_potential'
@@ -12,15 +12,32 @@ interface Props {
   idea: any
 }
 
+function getVideoEmbed(url: string): { type: 'youtube' | 'tiktok' | 'raw'; embedUrl: string } | null {
+  if (!url) return null
+
+  // YouTube
+  let match = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+  if (match) return { type: 'youtube', embedUrl: `https://www.youtube.com/embed/${match[1]}` }
+
+  // TikTok
+  match = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/)
+  if (match) return { type: 'tiktok', embedUrl: `https://www.tiktok.com/embed/v2/${match[1]}` }
+
+  // Direct video file
+  if (/\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)) return { type: 'raw', embedUrl: url }
+
+  return null
+}
+
 export default function IdeaShow({ idea }: Props) {
   const [generating, setGenerating] = useState<string | null>(null)
 
   const hasPlan = idea.structuredPlans?.length > 0
   const hasLaunchPack = idea.launchPacks?.length > 0
   const videoUrl: string | null = idea.sourceItem?.sourceUrl || null
+  const videoEmbed = videoUrl ? getVideoEmbed(videoUrl) : null
 
   const extendedData = useMemo(() => generateMockData(idea), [idea])
-
   const mockKeywords = useMemo(() => generateMockKeywords(idea), [idea])
 
   const marketInsights = useMemo(() => {
@@ -72,7 +89,7 @@ export default function IdeaShow({ idea }: Props) {
 
   return (
     <AppLayout>
-      <div className="max-w-5xl">
+      <div className="max-w-7xl mx-auto">
         {/* Breadcrumb */}
         <Link href="/ideas" className="text-sm text-nb-gray-500 hover:text-nb-red transition-colors mb-6 inline-flex items-center gap-1.5">
           <span>&larr;</span> Retour au coffre
@@ -85,7 +102,7 @@ export default function IdeaShow({ idea }: Props) {
         {/* Hero Header */}
         <div className="bg-nb-surface rounded-2xl border border-nb-border p-6 md:p-8 mb-6">
 
-          {/* Row 1 — Titre + scores (pleine largeur) */}
+          {/* Row 1 — Titre + scores */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl md:text-3xl font-black text-nb-white leading-tight mb-2">{idea.title}</h1>
@@ -109,7 +126,7 @@ export default function IdeaShow({ idea }: Props) {
           </div>
 
           <div className="border-t border-nb-border pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-start">
+            <div className={`grid grid-cols-1 gap-6 items-start ${videoEmbed ? 'lg:grid-cols-[1fr_320px]' : ''}`}>
 
               {/* Colonne gauche — donnees */}
               <div className="min-w-0 space-y-4">
@@ -189,19 +206,40 @@ export default function IdeaShow({ idea }: Props) {
                 </div>
               </div>
 
-              {/* Colonne droite — preview video */}
-              {videoUrl && (
-                <div className="w-full md:w-44 flex-shrink-0">
-                  <div className="bg-nb-dark rounded-xl border border-nb-border overflow-hidden h-[280px]">
-                    <video
-                      src={videoUrl}
-                      controls
-                      playsInline
-                      preload="metadata"
-                      className="w-full h-full object-cover"
-                    />
+              {/* Colonne droite — video embed */}
+              {videoEmbed && (
+                <div className="w-full flex-shrink-0">
+                  <div className="rounded-xl border border-nb-border overflow-hidden bg-nb-dark">
+                    {videoEmbed.type === 'youtube' ? (
+                      <iframe
+                        src={videoEmbed.embedUrl}
+                        title="Video source"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full aspect-video"
+                      />
+                    ) : videoEmbed.type === 'tiktok' ? (
+                      <iframe
+                        src={videoEmbed.embedUrl}
+                        title="Video source"
+                        allowFullScreen
+                        className="w-full aspect-[9/16] max-h-[500px]"
+                      />
+                    ) : (
+                      <video
+                        src={videoEmbed.embedUrl}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="w-full h-auto"
+                      />
+                    )}
                   </div>
-                  <p className="text-[10px] text-nb-gray-600 mt-2 text-center">Video source</p>
+                  {videoUrl && (
+                    <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-nb-gray-600 hover:text-nb-gray-400 mt-2 block text-center transition-colors">
+                      Voir la source originale
+                    </a>
+                  )}
                 </div>
               )}
             </div>

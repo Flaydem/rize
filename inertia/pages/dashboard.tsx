@@ -27,12 +27,21 @@ export default function Dashboard({ stats, difficultyBreakdown, budgetBreakdown,
     <AppLayout>
       <div className="max-w-6xl mx-auto">
 
-        {/* ── Header ── */}
+        {/* ── Header + CTA principal ── */}
         <div className="mb-10">
           <p className="text-[11px] uppercase tracking-[0.15em] text-nb-gray-600 mb-2">Tableau de bord</p>
-          <h1 className="text-[28px] md:text-[32px] font-extrabold text-nb-white leading-tight">
-            Vue d'ensemble
-          </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 className="text-[28px] md:text-[32px] font-extrabold text-nb-white leading-tight">
+              Vue d'ensemble
+            </h1>
+            <Link
+              href="/ideas"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-nb-red text-white rounded-lg text-sm font-bold hover:bg-nb-red-hover transition-colors"
+            >
+              Explorer les idees
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><polyline points="12 5 19 12 12 19" /></svg>
+            </Link>
+          </div>
         </div>
 
         {/* ── Key metrics row ── */}
@@ -179,7 +188,6 @@ export default function Dashboard({ stats, difficultyBreakdown, budgetBreakdown,
         {/* ── Quick actions ── */}
         <div className="border-t border-nb-border/50 pt-8 pb-4">
           <div className="flex flex-wrap gap-3">
-            <QuickAction href="/ideas" label="Explorer les idees" />
             <QuickAction href="/validator" label="Valider une idee" />
             <QuickAction href="/admin/source-items/create" label="Importer des sources" />
           </div>
